@@ -13,6 +13,7 @@ import android.widget.Toast;
 public class Fragmentmanageractivity extends FragmentActivity implements MyFragment.GetFragNumber {
 	public static final String FIRST_FRAGMENT_TAG = "first";
 	public static final String SECOND_FRAGMENT_TAG = "second";
+    public static final String ALL_FRAGMENT_TAG = "fragment ";
 	private Fragment visible;
 	private Fragment mVisibleCached;
 	private MyFragment myFrag;
@@ -38,7 +39,7 @@ public class Fragmentmanageractivity extends FragmentActivity implements MyFragm
 		final FragmentTransaction ft = fm.beginTransaction();
 		myFrag = ((MyFragment) fm.findFragmentByTag(FIRST_FRAGMENT_TAG));
 		if (myFrag == null) {
-			myFrag = MyFragment.newInstance();
+			myFrag = MyFragment.newInstance(currentfragnumber, false);
 			ft.add(R.id.fragment_container, myFrag, FIRST_FRAGMENT_TAG);
 		}
 		visible = myFrag;
@@ -52,36 +53,41 @@ public class Fragmentmanageractivity extends FragmentActivity implements MyFragm
 
 	}
 	
-	public void addFragment() {
-		currentfragnumber++;
+	public void addFragment(boolean infinite) {
 		final FragmentManager fm = getSupportFragmentManager();
 		final FragmentTransaction ft = fm.beginTransaction();
 		ft.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out);
 		
-		
-		if(visible.getTag() == FIRST_FRAGMENT_TAG)
-		{
-			Toast.makeText(this, "FirstFragmentShowing", Toast.LENGTH_LONG).show();
-			myFragTwo = ((MyFragment) fm.findFragmentByTag(SECOND_FRAGMENT_TAG));
-			if(myFragTwo == null){
-				myFragTwo = MyFragment.newInstance();
-			}
-			ft.replace(R.id.fragment_container,  myFragTwo, SECOND_FRAGMENT_TAG);
-			ft.addToBackStack(null);
-			visible = myFragTwo;
-		}
-		else
-		{
-			Toast.makeText(this, "SecondFragmentShowing", Toast.LENGTH_LONG).show();
-			myFrag = ((MyFragment) fm.findFragmentByTag(FIRST_FRAGMENT_TAG));
-			if(myFrag == null){
-				myFrag = MyFragment.newInstance();
-			}
-			
-			ft.replace(R.id.fragment_container,  myFrag, FIRST_FRAGMENT_TAG);
-			ft.addToBackStack(null);
-			visible = myFrag;
-		}
+		if(infinite) {
+            currentfragnumber++;
+            myFragTwo = MyFragment.newInstance(currentfragnumber, infinite);
+            ft.replace(R.id.fragment_container,  myFragTwo, ALL_FRAGMENT_TAG);
+            ft.addToBackStack(null);
+            visible = myFragTwo;
+        }
+        else {
+
+            if (visible.getTag() == FIRST_FRAGMENT_TAG) {
+                myFragTwo = ((MyFragment) fm.findFragmentByTag(SECOND_FRAGMENT_TAG));
+                if (myFragTwo == null) {
+                    myFragTwo = MyFragment.newInstance(currentfragnumber, infinite);
+                }
+                ft.replace(R.id.fragment_container, myFragTwo, SECOND_FRAGMENT_TAG);
+                ft.addToBackStack(null);
+                currentfragnumber = 1;
+                visible = myFragTwo;
+            } else {
+                myFrag = ((MyFragment) fm.findFragmentByTag(FIRST_FRAGMENT_TAG));
+                if (myFrag == null) {
+                    myFrag = MyFragment.newInstance(currentfragnumber, infinite);
+                }
+
+                ft.replace(R.id.fragment_container, myFrag, FIRST_FRAGMENT_TAG);
+                ft.addToBackStack(null);
+                currentfragnumber = 0;
+                visible = myFrag;
+            }
+        }
 		ft.commit();
 		
 	}
